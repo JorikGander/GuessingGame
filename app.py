@@ -11,6 +11,10 @@ if "current_game_guesses" not in st.session_state:
     st.session_state.current_game_guesses = 0
 if "target_number" not in st.session_state:
     st.session_state.target_number = random.randint(1, 100)
+if "low_limit" not in st.session_state:
+    st.session_state.low_limit = 1
+if "high_limit" not in st.session_state:
+    st.session_state.high_limit = 100
 
 # Function to reset game state
 def reset_game():
@@ -18,6 +22,8 @@ def reset_game():
     st.session_state.guesses_per_game.append(st.session_state.current_game_guesses)
     st.session_state.current_game_guesses = 0
     st.session_state.target_number = random.randint(1, 100)
+    st.session_state.low_limit = 1
+    st.session_state.high_limit = 100
 
 # Sidebar navigation
 page = st.sidebar.selectbox("Select a page:", ["Play", "Stats"])
@@ -25,7 +31,7 @@ page = st.sidebar.selectbox("Select a page:", ["Play", "Stats"])
 # "Play" Page
 if page == "Play":
     st.title("Number Guessing Game")
-    st.write("Guess a number between 1 and 100. I'll give you hints!")
+    st.write("Guess a number between 1 and 100. I'll help you narrow it down!")
 
     # Chat component for guessing
     if "chat_history" not in st.session_state:
@@ -40,11 +46,15 @@ if page == "Play":
             else:
                 st.session_state.current_game_guesses += 1
                 if user_guess < st.session_state.target_number:
-                    response = "Too low! Try again."
+                    # Update the lower bound for hints
+                    st.session_state.low_limit = max(st.session_state.low_limit, user_guess + 1)
+                    response = f"Too low! Try guessing between {st.session_state.low_limit} and {st.session_state.high_limit}."
                 elif user_guess > st.session_state.target_number:
-                    response = "Too high! Try again."
+                    # Update the upper bound for hints
+                    st.session_state.high_limit = min(st.session_state.high_limit, user_guess - 1)
+                    response = f"Too high! Try guessing between {st.session_state.low_limit} and {st.session_state.high_limit}."
                 else:
-                    response = "Congratulations! You've guessed the number!"
+                    response = "🎉 Congratulations! You've guessed the number!"
                     reset_game()
         except ValueError:
             response = "Invalid input. Please enter a valid number."
@@ -80,5 +90,3 @@ elif page == "Stats":
         st.bar_chart(df.set_index("Game"))
     else:
         st.write("No games played yet. Play some games to see statistics!")
-
-
