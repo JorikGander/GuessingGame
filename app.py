@@ -1,8 +1,29 @@
 import streamlit as st
 import random
 import pandas as pd
+import json
+import os
 
-# Initialize session state variables for stats and game logic
+# JSON File for persistent storage
+STATS_FILE = "global_stats.json"
+
+# Function to load global stats from a JSON file
+def load_global_stats():
+    if os.path.exists(STATS_FILE):
+        with open(STATS_FILE, "r") as f:
+            return json.load(f)
+    else:
+        return {"games_played": 0, "guesses_per_game": []}
+
+# Function to save global stats to a JSON file
+def save_global_stats(global_stats):
+    with open(STATS_FILE, "w") as f:
+        json.dump(global_stats, f)
+
+# Load global stats
+global_stats = load_global_stats()
+
+# Initialize session state variables
 if "games_played" not in st.session_state:
     st.session_state.games_played = 0
 if "guesses_per_game" not in st.session_state:
@@ -20,6 +41,12 @@ if "high_limit" not in st.session_state:
 def reset_game():
     st.session_state.games_played += 1
     st.session_state.guesses_per_game.append(st.session_state.current_game_guesses)
+    
+    # Update global stats
+    global_stats["games_played"] += 1
+    global_stats["guesses_per_game"].append(st.session_state.current_game_guesses)
+    save_global_stats(global_stats)
+
     st.session_state.current_game_guesses = 0
     st.session_state.target_number = random.randint(1, 100)
     st.session_state.low_limit = 1
@@ -72,25 +99,44 @@ elif page == "Stats":
     st.title("Game Statistics")
     
     # Display total games played and average guesses per game
-    total_games = st.session_state.games_played
-    avg_guesses = (
-        sum(st.session_state.guesses_per_game) / total_games
-        if total_games > 0
+    session_avg_guesses = (
+        sum(st.session_state.guesses_per_game) / st.session_state.games_played
+        if st.session_state.games_played > 0
         else 0
     )
-    st.metric("Games Played", total_games)
-    st.metric("Average Guesses per Game", round(avg_guesses, 2))
+    global_avg_guesses = (
+        sum(global_stats["guesses_per_game"]) / global_stats["games_played"]
+        if global_stats["games_played"] > 0
+        else 0
+    )
 
-    # Aggregated bar chart for guesses per game
-    if total_games > 0:
-        # Count occurrences of each number of guesses
-        guess_counts = pd.Series(st.session_state.guesses_per_game).value_counts().sort_index()
-        aggregated_data = pd.DataFrame({
-            "Guesses": guess_counts.index,
-            "Number of Games": guess_counts.values
+    st.metric("Games Played (This Session)", st.session_state.games_played)
+    st.metric("Average Guesses (This Session)", round(session_avg_guesses, 2))
+    st.metric("Games Played (Global)", global_stats["games_played"])
+    st.metric("Average Guesses (Global)", round(global_avg_guesses, 2))
+
+    # Bar chart for session stats
+    st.subheader("Session Stats")
+    if st.session_state.games_played > 0:
+        session_counts = pd.Series(st.session_state.guesses_per_game).value_counts().sort_index()
+        session_data = pd.DataFrame({
+            "Guesses": session_counts.index,
+            "Number of Games": session_counts.values
         })
-
-        st.bar_chart(aggregated_data.set_index("Guesses"))
+        st.bar_chart(session_data.set_index("Guesses"))
     else:
-        st.write("No games played yet. Play some games to see statistics!")
+        st.write("No games played yet this session. Play some games to see statistics!")
+
+    # Bar chart for global stats
+    st.subheader("Global Stats")
+    if global_stats["games_played"] > 0:
+        global_counts = pd.Series(global_stats["guesses_per_game"]).value_counts().sort_index()
+        global_data = pd.DataFrame({
+            "Guesses": global_counts.index,
+            "Number of Games": global_counts.values
+        })
+        st.bar_chart(global_data.set_index("Guesses"))
+    else:
+        st.write("No global stats available yet. Play some games to start tracking!")
+
 
