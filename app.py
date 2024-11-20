@@ -81,12 +81,16 @@ elif page == "Stats":
     st.metric("Games Played", total_games)
     st.metric("Average Guesses per Game", round(avg_guesses, 2))
 
-    # Bar chart for guesses per game
+    # Aggregated bar chart for guesses per game
     if total_games > 0:
-        df = pd.DataFrame({
-            "Game": [f"Game {i+1}" for i in range(total_games)],
-            "Guesses": st.session_state.guesses_per_game
+        # Count occurrences of each number of guesses
+        guess_counts = pd.Series(st.session_state.guesses_per_game).value_counts().sort_index()
+        aggregated_data = pd.DataFrame({
+            "Guesses": guess_counts.index,
+            "Number of Games": guess_counts.values
         })
-        st.bar_chart(df.set_index("Game"))
+
+        st.bar_chart(aggregated_data.set_index("Guesses"))
     else:
         st.write("No games played yet. Play some games to see statistics!")
+
