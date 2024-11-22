@@ -44,11 +44,11 @@ if "current_game_guesses" not in st.session_state:
     st.session_state.current_game_guesses = 0
 if "guess_feedback" not in st.session_state:
     st.session_state.guess_feedback = {
-        "Very bad guess": 0,
-        "Bad guess": 0,
-        "Okay guess": 0,
-        "Good guess": 0,
-        "Very good guess": 0,
+        "Very Bad Guess": 0,
+        "Bad Guess": 0,
+        "Okay Guess": 0,
+        "Good Guess": 0,
+        "Very Good Guess": 0,
     }
 
 # Function to interact with OpenAI
