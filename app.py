@@ -130,7 +130,7 @@ def evaluate_last_guess(target_animal, guess, guess_log):
         f"The user is playing an animal guessing game."
         f"Below is the log of the guesses and hints provided during the game:\n\n{log_text}\n\n"
         f"The user's last guess is '{guess}'. Provide feedback on the last guess as one of the following: "
-        f"'Very bad guess', 'Bad guess', 'Okay guess', 'Good guess', 'Very good guess'. Base your evaluation on wether it was plausible to guess this animal based on the hints before. Provide only the feedback."
+        f"'Very bad guess', 'Bad guess', 'Okay guess', 'Good guess', 'Very good guess'. Base your evaluation on wether it was plausible to guess this animal based on the hints before, but dont be too harsh. Provide only the feedback."
     )
     
     try:
