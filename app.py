@@ -15,7 +15,7 @@ def get_random_animal():
     """
     Uses OpenAI to generate a random animal name.
     """
-    prompt = "Generate a single random animal name that is known, and output it as plain text."
+    prompt = "Generate a single random animal name, and output it as plain text. Choose an animal that is not completly unknown!"
     
     try:
         chat_completion = client.chat.completions.create(
