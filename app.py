@@ -71,7 +71,7 @@ def evaluate_guess(target_animal, guess):
     question = (
         f"The user is playing a guessing game. The target animal is '{target_animal}', "
         f"and they guessed '{guess}'. The user has made {num_guesses} guesses so far. "
-        f"Provide a {hint_level} hint based on the guess and the target animal. Do not be so revealing and only give one information, especially for only slightly helpful and slightly helpful hints. Do not make it too easy."
+        f"Provide a {hint_level} hint based on the guess and the target animal. Do not be so revealing and only give one information, especially for only slightly helpful and slightly helpful hints. Do not make it too easy. Do not in any case mention the target animal!"
     )
     
     try:
